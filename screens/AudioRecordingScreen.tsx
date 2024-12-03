@@ -3,6 +3,10 @@ import { View, Text, StyleSheet, Button, Pressable, Platform, Alert } from "reac
 import { Audio } from "expo-av";
 import AsyncStorage from "@react-native-async-storage/async-storage"; // For native storage
 import { RecordingsContext } from "../app/_layout";
+import Svg, { Path } from "react-native-svg";
+// import { MicIcon } from "@/utils/icons";
+
+const micIcon1 = `<svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 32 32" height="200px" width="200px" xmlns="http://www.w3.org/2000/svg"><path d="M 13 4 C 11.90625 4 11 4.90625 11 6 L 11 18 C 11 19.09375 11.90625 20 13 20 L 19 20 C 20.09375 20 21 19.09375 21 18 L 21 6 C 21 4.90625 20.09375 4 19 4 Z M 13 6 L 19 6 L 19 18 L 13 18 Z M 7 14 L 7 18 C 7 21.300781 9.699219 24 13 24 L 15 24 L 15 26 L 11 26 L 11 28 L 21 28 L 21 26 L 17 26 L 17 24 L 19 24 C 22.300781 24 25 21.300781 25 18 L 25 14 L 23 14 L 23 18 C 23 20.21875 21.21875 22 19 22 L 13 22 C 10.78125 22 9 20.21875 9 18 L 9 14 Z"></path></svg>`
 
 // Utility function to format time to HH:MM:SS
 const formatTime = (timeInSeconds: number): string => {
@@ -169,31 +173,62 @@ export default function AudioRecordingScreen() {
   return (
     <View style={styles.container}>
       {isRecording ? (
-        <View>
-          <Text style={styles.title}>Recording in Progress</Text>
-          <Text>Duration: {formatTime(recordingTime)}</Text>
-          <Button title="Stop Recording" onPress={stopRecording} />
+        <View style={styles.recorder}>
+          {/* <Text style={styles.title}>Recording in Progress</Text> */}
+          <Text>{formatTime(recordingTime)}</Text>
+          <Pressable style={styles.recNstopBtn}
+            onPress={stopRecording}>
+            <Svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 448 512" height="32px" width="32px">
+              <Path d="M400 32H48C21.5 32 0 53.5 0 80v352c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V80c0-26.5-21.5-48-48-48z"></Path>
+            </Svg>
+          </Pressable> 
         </View>
       ) : currentRecording ? (
-        <View>
+        <View style={styles.recorder}>
           <Text style={styles.title}>Recorded Audio</Text>
-          <Text>Name: {currentRecording.name}</Text>
+          <Text>{currentRecording.name}</Text>
           <Text>Duration: {currentRecording.duration}</Text>
           {isPlaying ? (
             <View>
               <Text>Playback: {formatTime(playbackTime)} / {formatTime(totalPlaybackTime)}</Text>
-              <Button title="Stop Playback" onPress={stopPlayback} />
+              <Pressable style={styles.recNstopBtn}
+                onPress={stopPlayback}>
+                  <Svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 448 512" height="32px" width="32px">
+                    <Path d="M400 32H48C21.5 32 0 53.5 0 80v352c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V80c0-26.5-21.5-48-48-48z"></Path>
+                  </Svg>
+              </Pressable>  
             </View>
           ) : (
-            <Button title="Play Recording" onPress={playRecording} />
+            <Pressable style={styles.playIcnBtn} onPress={playRecording} >
+              <Svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 448 512" height="32px" width="32px">
+                <Path d="M424.4 214.7L72.4 6.6C43.8-10.3 0 6.1 0 47.9V464c0 37.5 40.7 60.1 72.4 41.3l352-208c31.4-18.5 31.5-64.1 0-82.6z"></Path>
+              </Svg>
+            </Pressable>
           )}
-          <Button title="Discard" onPress={discardRecording} />
-          <Button title="Save" onPress={saveRecording} />
+          <View style={{ display:"flex", flexDirection:"row", gap: 16 }}>
+            <Pressable style={styles.deleteBtn}
+              onPress={discardRecording}>
+              <Text>Discard</Text>
+            </Pressable> 
+              
+            <Pressable style={styles.saveBtn}
+              onPress={saveRecording} >
+              <Text>Save</Text>
+            </Pressable>
+          </View>
         </View>
       ) : (
-        <View>
-          <Text style={styles.title}>No Recording Available</Text>
-          <Button title="Start Recording" onPress={startRecording} />
+        <View style={styles.recorderMin}>
+          {/* <Text style={styles.title}>No Recording Available</Text> */}
+         
+          <Pressable 
+            style={styles.recNstopBtn}
+            onPress={startRecording}
+          >
+             <Svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 32 32" height="32px" width="32px">
+              <Path d="M 13 4 C 11.90625 4 11 4.90625 11 6 L 11 18 C 11 19.09375 
+              11.90625 20 13 20 L 19 20 C 20.09375 20 21 19.09375 21 18 L 21 6 C 21 4.90625 20.09375 4 19 4 Z M 13 6 L 19 6 L 19 18 L 13 18 Z M 7 14 L 7 18 C 7 21.300781 9.699219 24 13 24 L 15 24 L 15 26 L 11 26 L 11 28 L 21 28 L 21 26 L 17 26 L 17 24 L 19 24 C 22.300781 24 25 21.300781 25 18 L 25 14 L 23 14 L 23 18 C 23 20.21875 21.21875 22 19 22 L 13 22 C 10.78125 22 9 20.21875 9 18 L 9 14 Z"></Path></Svg>
+          </Pressable>
         </View>
       )}
     </View>
@@ -212,4 +247,60 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 10,
   },
+
+  saveBtn:{
+    padding: 4,
+    backgroundColor: "#4CAF50",
+    width: 64,
+    height: 32,
+    borderRadius: 4,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  deleteBtn:{
+    padding: 4,
+    backgroundColor: "red",
+    width: 64,
+    height: 32,
+    borderRadius: 4,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  recNstopBtn:{
+    width: 86,
+    height: 86,
+    backgroundColor: "skyblue",
+    borderRadius: "100%",
+    justifyContent: "center",
+    alignItems: "center"
+  },
+  playIcnBtn: {
+    width: 86,
+    height: 86,
+    backgroundColor: "skyblue",
+    borderRadius: "100%",
+    justifyContent: "center",
+    alignItems: "center"
+  },
+
+  recorder:{
+    flex: 1,
+    display: "flex",
+    alignItems:"center",
+    justifyContent:"center"    
+  },
+
+  recorderMin:{
+    position: "fixed",
+    padding: 8,
+    bottom: 0,
+    height: 97,
+    width: "100%",
+    backgroundColor: "lightgrey",   
+    display: "flex",
+    alignItems:"center",
+    justifyContent:"center"    
+  }
 });
