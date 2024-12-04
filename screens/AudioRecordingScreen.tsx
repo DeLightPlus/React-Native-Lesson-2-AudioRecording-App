@@ -3,10 +3,10 @@ import { View, Text, StyleSheet, Pressable, Platform, Alert } from "react-native
 import Svg, { Path } from "react-native-svg";
 import { Audio } from "expo-av";
 import AsyncStorage from "@react-native-async-storage/async-storage"; 
+import * as FileSystem from 'expo-file-system';
 
 import { RecordingsContext } from "@/context/RecordingsContext";
 // import { MicIcon } from "@/utils/icons";
-
 
 // Utility function to format time to HH:MM:SS
 const formatTime = (timeInSeconds: number): string => {
@@ -76,24 +76,24 @@ export default function AudioRecordingScreen() {
 
   const stopRecording = async () => {
     if (!audioRecording) return;
-
+  
     try {
       if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
-
+  
       await audioRecording.stopAndUnloadAsync();
       const { sound, status } = await audioRecording.createNewLoadedSoundAsync();
       const formattedDuration = formatTime(Math.floor(status.durationMillis / 1000));
-
+  
       setIsRecording(false);
       setCurrentRecording({
         id: Date.now(),
-        name: `Recording ${new Date(Date.now()).toLocaleString('en-GB', { hour12: false }).replace(/[^\d]/g, '').slice(0, 12)}`,
+        name: `Recording-${new Date(Date.now()).toLocaleString('en-GB', { hour12: false }).replace(/[^\d]/g, '').slice(0, 12)}`,
         duration: formattedDuration,
         sound,
         uri: audioRecording.getURI(),
       });
       setAudioRecording(null);
-
+  
       // Show options to save or discard the recording
       Alert.alert("Save or Discard", "Do you want to save this recording?", [
         {
@@ -109,44 +109,57 @@ export default function AudioRecordingScreen() {
       console.error("Error stopping recording:", error);
     }
   };
-
   
-
   const saveRecording = async () => {
     if (!currentRecording) return;
   
     try {
-      // If the recording URI is a Blob, we'll handle it by converting it to a file and storing it locally
       let recordingUri = currentRecording.uri;
+      let recordingName = currentRecording.name;
   
       // Handle blob URL (for web) - converting it into a proper file URL if necessary
-      if (recordingUri.startsWith('blob:')) 
-      {
+      if (recordingUri.startsWith('blob:')) {
         // On Web, convert the blob URI to a regular file using FileReader API
         const response = await fetch(recordingUri);
         const blob = await response.blob(); // Convert blob to a proper file
         console.log("blob: ", blob);
-        
   
         // Convert blob to a file URL
         const objectURL = URL.createObjectURL(blob); // Create an object URL for the file (temporary URL)
-        console.log("objURL: ", objectURL);        
+        console.log("objURL: ", objectURL);
   
         // Update the URI to the temporary object URL
         recordingUri = objectURL;
+      }
+  
+      // For Native platforms, we save the actual file to the device's file system
+      if (Platform.OS !== 'web') {
+        // Define a unique filename for the recording
+        const fileName = recordingName || `recording-${Date.now()}.mp3`; // Optional custom name
+        const fileUri = FileSystem.documentDirectory + fileName;  // Path to save the file
+  
+        // Write the file to the file system
+        const response = await fetch(recordingUri);
+        const blob = await response.blob();  // Fetch the content as a blob
+        const arrayBuffer = await blob.arrayBuffer();  // Convert the blob to ArrayBuffer
+  
+        // Write the ArrayBuffer to a file in the app's document directory
+        await FileSystem.writeAsStringAsync(fileUri, arrayBuffer, {
+          encoding: FileSystem.EncodingType.Base64,  // Ensure we use Base64 encoding for binary data
+        });
+  
+        // Update the recording URI with the local file path
+        recordingUri = fileUri;
       }
   
       // Add the new recording to the list
       const newRecordingList = [...recordings, { ...currentRecording, uri: recordingUri }];
   
       // Persist the updated list of recordings based on the platform
-      if (Platform.OS === "web") 
-      {
+      if (Platform.OS === "web") {
         // For Web, store the recordings in localStorage
         localStorage.setItem("recordings", JSON.stringify(newRecordingList));
-      } 
-      else 
-      {
+      } else {
         // For Native, store the recordings in AsyncStorage
         await AsyncStorage.setItem("recordings", JSON.stringify(newRecordingList));
       }
@@ -158,6 +171,7 @@ export default function AudioRecordingScreen() {
       console.error("Error saving recording:", error); // Error handling
     }
   };
+  
 
   const discardRecording = () => {
     setCurrentRecording(null); // Discard the current recording
