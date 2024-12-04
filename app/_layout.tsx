@@ -1,19 +1,17 @@
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Drawer } from "expo-router/drawer";
 import { createContext, useState } from "react";
+import RecordingProvider from "@/context/RecordingsContext";
 
 // Context to share recordings state
-export const RecordingsContext = createContext();
+// export const RecordingsContext = createContext();
 
-export default function Layout() {
-  const [recordings, setRecordings] = useState([]); // List of all recordings
-  const [currentRecording, setCurrentRecording] = useState(null); // Current recording in progress
+export default function Layout() { 
 
   return (
-    <RecordingsContext.Provider
-      value={{ recordings, setRecordings, currentRecording, setCurrentRecording }}
-    >
-      <GestureHandlerRootView style={{ flex: 1 }}>
+
+    <RecordingProvider>
+        <GestureHandlerRootView style={{ flex: 1 }}>
         <Drawer>
           <Drawer.Screen
             name="index"
@@ -23,14 +21,30 @@ export default function Layout() {
             }}
           />
           <Drawer.Screen
-            name="recordings"
+            name="[recordings]/index"
             options={{
-              drawerLabel: "📃 Recordings",
+              drawerLabel: "📼 Recordings",
               title: "Recordings",
+            }}
+          />
+          <Drawer.Screen
+            name="[playback]/index"
+            options={{
+              drawerLabel: "🎧 Playback",
+              title: "Playback",
+            }}
+          />
+          <Drawer.Screen
+            name="settings"
+            options={{
+              drawerLabel: "⚙ Settings",
+              title: "Playback",
             }}
           />
         </Drawer>
       </GestureHandlerRootView>
-    </RecordingsContext.Provider>
+    </RecordingProvider>
+      
+    
   );
 }

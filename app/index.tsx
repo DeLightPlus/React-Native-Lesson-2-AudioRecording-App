@@ -2,7 +2,7 @@
 
 import AudioRecordingScreen from "@/screens/AudioRecordingScreen";
 
-const Home = () => {
+const index = () => {
     return (
       <>
         <AudioRecordingScreen />
@@ -10,4 +10,4 @@ const Home = () => {
     )
   }
 
-export default Home;
+export default index;

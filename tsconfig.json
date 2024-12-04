@@ -13,5 +13,5 @@
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
-  ]
+, "app/[playback]/(index.tsx)", "app/[playback]/index.tsx", "app/[recordings]/(index.tsx)", "utils/icons.js"  ]
 }
