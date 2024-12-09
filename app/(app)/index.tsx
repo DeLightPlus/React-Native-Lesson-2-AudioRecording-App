@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect, useContext, useCallback } from "react";
-import { View, Text, StyleSheet, Pressable, Platform, Alert, FlatList, ScrollView } from "react-native";
+import { View, Text, StyleSheet, Pressable, ScrollView, FlatList } from "react-native";
 import { Audio } from "expo-av";
 import AsyncStorage from "@react-native-async-storage/async-storage"; 
-import * as FileSystem from 'expo-file-system';
+import { Link, useNavigation } from "expo-router";
 
 import { RecordingsContext } from "@/context/RecordingsContext";
 import Icons from "@/utils/Icons";
+
 
 // Utility function to format time to HH:MM:SS
 const formatTime = (timeInSeconds: number): string => {
@@ -16,6 +17,7 @@ const formatTime = (timeInSeconds: number): string => {
 
 export default function AudioRecordingScreen() {
   const { currentRecording, setCurrentRecording, recordings, setRecordings } = useContext(RecordingsContext);
+  const navigation = useNavigation();
 
   const [audioRecording, setAudioRecording] = useState<Audio.Recording | null>(null);
   const [isRecording, setIsRecording] = useState(false);
@@ -42,8 +44,10 @@ export default function AudioRecordingScreen() {
   }, []);
 
   useEffect(() => {
-    const fetchRecordings = async () => {
-      try {
+    const fetchRecordings = async () => 
+    {
+      try 
+      {
         const storedRecordings = await AsyncStorage.getItem("recordings");
         if (storedRecordings) {
           const recordingsList = JSON.parse(storedRecordings);
@@ -56,7 +60,9 @@ export default function AudioRecordingScreen() {
   
           setRecordings(todayRecordings);
         }
-      } catch (error) {
+      } 
+      catch (error)
+      {
         console.error("Error fetching recordings:", error);
       }
     };
@@ -257,15 +263,16 @@ export default function AudioRecordingScreen() {
 
   return (
     <View style={styles.container}>
-      {/* { console.log("recordings", recordings) } */}
-      {isRecording ? (
+      {
+        isRecording ? (
         <View style={styles.recorder}>
-          {/* <Text style={styles.title}>Recording in Progress</Text> */}
+          
           <Text>{formatTime(recordingTime)}</Text>
           <Pressable style={styles.recNstopBtn}
             onPress={stopRecording}>
             <Icons name="stop"/>
           </Pressable> 
+
         </View>
       ) : currentRecording ? (
         <View style={styles.recorder}>
@@ -302,26 +309,32 @@ export default function AudioRecordingScreen() {
         </View>
       ) : (
         <View style={styles.recorderMin}>
-          <ScrollView style={styles.recordings}>
+
+          <>
             {recordings.length > 0 ? (
-              recordings.map((recording) => (
-                <View key={recording.id} style={styles.recordingItem}>
-                  <Text style={styles.recordingText}>
-                    {recording.name} - {recording.duration}
-                  </Text>
-                  {/* <Pressable
-                    style={styles.playIcnBtn}
-                    onPress={() => playSavedRecording(recording)}
-                  >
-                    <Icons name="play" />
-                  </Pressable> */}
-                </View>
-              ))
+              <FlatList
+                style={styles.recordings}
+                data={recordings}
+                renderItem={({ item }) => (
+                  <View style={styles.recordingItem}>
+                    <Link href={`/playback/${item.id}`}>
+                      <Text style={styles.recordingText}>
+                        {item.name} - {item.duration}
+                      </Text>
+                      {/* <Text style={styles.recordingName}>{item.name}</Text> */}
+                      {/* <Text style={styles.recordingDuration}>{item.duration}</Text> */}
+                    </Link>
+                  </View>
+                )}
+
+                keyExtractor={(item) => item.id.toString()}
+              />
             ) : (
-              <Text style={styles.title}>No Recording Available</Text>
+              <Text style={styles.noRecordingsText}>No recordings available in storage.</Text>
             )}
-          </ScrollView>
-          
+          </>
+
+           
 
           <View style={styles.recorderMinInner}>
             <Pressable 
@@ -331,6 +344,7 @@ export default function AudioRecordingScreen() {
               <Icons name="microphone"/>
             </Pressable>
           </View>
+
         </View>
       )}
     </View>
