@@ -1,50 +1,20 @@
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { Drawer } from "expo-router/drawer";
-import { createContext, useState } from "react";
-import RecordingProvider from "@/context/RecordingsContext";
+import React from 'react';
+import { Stack } from 'expo-router';
+import RecordingProvider from '@/context/RecordingsContext';  // Import your context provider
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import DrawerLayout from './(app)/_layout';
 
-// Context to share recordings state
-// export const RecordingsContext = createContext();
-
-export default function Layout() { 
-
+export default function AppLayout() {
   return (
-
-    <RecordingProvider>
-        <GestureHandlerRootView style={{ flex: 1 }}>
-        <Drawer>
-          <Drawer.Screen
-            name="index"
-            options={{
-              drawerLabel: "🎙️ Audio Recorder",
-              title: "Audio Recorder",
-            }}
-          />
-          <Drawer.Screen
-            name="[recordings]/index"
-            options={{
-              drawerLabel: "📼 Recordings",
-              title: "Recordings",
-            }}
-          />
-          <Drawer.Screen
-            name="[playback]/index"
-            options={{
-              drawerLabel: "🎧 Playback",
-              title: "Playback",
-            }}
-          />
-          <Drawer.Screen
-            name="settings"
-            options={{
-              drawerLabel: "⚙ Settings",
-              title: "Playback",
-            }}
-          />
-        </Drawer>
+    <RecordingProvider> {/* Make sure to wrap your app with the provider */}
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <Stack>        
+            <Stack.Screen name="(app)" 
+              options={{ headerShown: false,  title: "🎙️ Recorder " }}  /> 
+            <Stack.Screen name="playback/[id]" 
+              options={{ headerShown: true, title:`🎧`}}  />
+        </Stack>
       </GestureHandlerRootView>
     </RecordingProvider>
-      
-    
   );
 }

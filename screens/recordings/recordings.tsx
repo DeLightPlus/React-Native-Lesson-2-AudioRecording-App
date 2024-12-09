@@ -1,17 +1,17 @@
 import React, { useContext, useEffect, useState } from "react";
 import { View, Text, FlatList, Platform, StyleSheet, Pressable } from "react-native";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 
 import { RecordingsContext } from "@/context/RecordingsContext.jsx";
 import { loadRecordings } from "@/utils/loadRecordings";
 
 
 const RecordingsScreen = () => {
+
+  const { id } = useLocalSearchParams();
   
   const router = useRouter();
-  const { recordings, setRecordings } = useContext(RecordingsContext);
-
-  
+  const { recordings, setRecordings } = useContext(RecordingsContext);  
 
   useEffect(() => {
     const fetchData = async () =>{
@@ -24,7 +24,7 @@ const RecordingsScreen = () => {
   }, []);
 
   const navigateToPlayback  = async (id) => {
-    router.push(`/playback?id=${id}`);
+    router.push(`/playback/${id}`);
   };
 
   return (

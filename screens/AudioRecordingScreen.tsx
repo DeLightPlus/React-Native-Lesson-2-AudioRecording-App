@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useContext, useCallback } from "react";
 import { View, Text, StyleSheet, Pressable, Platform, Alert } from "react-native";
-import Svg, { Path } from "react-native-svg";
+
 import { Audio } from "expo-av";
 import AsyncStorage from "@react-native-async-storage/async-storage"; 
 import * as FileSystem from 'expo-file-system';
